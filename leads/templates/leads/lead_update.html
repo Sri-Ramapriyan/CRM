@@ -1,37 +1,238 @@
 {% extends "base.html" %}
-{% load tailwind_filters %}
 
 {% block content %}
 
-<section class="text-gray-700 body-font overflow-hidden">
-    <div class="container px-5 py-24 mx-auto">
-      <div class="lg:w-4/5 mx-auto flex flex-wrap">
-        <div class="w-full lg:pr-10 lg:py-6 mb-6 lg:mb-0">
-            <h2 class="text-sm title-font text-gray-500 tracking-widest">LEAD</h2>
-            <h1 class="text-gray-900 text-3xl title-font font-medium mb-4">{{ lead.first_name }} {{ lead.last_name }}</h1>
-            <div class="flex mb-4">
-                <a href="{% url 'leads:lead-detail' lead.pk %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">
-                    Overview
-                </a>
-                <a href="{% url 'leads:lead-category-update' lead.pk %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">
-                    Category
-                </a>
-                <a href="{% url 'leads:lead-update' lead.pk %}" class="flex-grow text-indigo-500 border-b-2 border-indigo-500 py-2 text-lg px-1">
-                    Update Details
-                </a>
+<section class="lead-section">
+    <div class="container">
+        <div class="lead-wrapper">
+            <div class="lead-header">
+                <h2>LEAD</h2>
+                <div style="display: flex; align-items: center;">
+                    {% if lead.profile_picture %}
+                        <img src="{{ lead.profile_picture.url }}" alt="Profile Picture" class="profile-picture floating">
+                    {% endif %}
+                    <h1 style="margin-left: 15px;">{{ lead.first_name }} {{ lead.last_name }}</h1>
+                </div>
             </div>
-            <form method="post" enctype="multipart/form-data">
+
+            <div class="lead-nav">
+                <a href="{% url 'leads:lead-detail' lead.pk %}" class="{% if request.path == lead.get_absolute_url %}active{% endif %}">Overview</a>
+                <a href="{% url 'leads:lead-category-update' lead.pk %}" class="{% if request.path == lead.get_category_update_url %}active{% endif %}">Status</a>
+                <a href="{% url 'leads:lead-update' lead.pk %}" class="{% if request.path == lead.get_update_url %}active{% endif %}">Update Details</a>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="lead-form">
                 {% csrf_token %}
-                {{ form|crispy }}
-                <button type="submit" class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">Submit</button>
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="error-text">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="submit-btn">Submit</button>
             </form>
-            <div class="mt-5 py-5 border-t border-gray-200">
-                <a href="{% url 'leads:lead-delete' lead.pk %}" class="w-1/2 mt-3 text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
-                    Delete
-                </a>
-            </div>
         </div>
-      </div>
     </div>
-  </section>
+</section>
+
+<style>
+/* General Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa);
+}
+
+.lead-section {
+    padding: 40px 0;
+}
+
+/* Container */
+.lead-section .container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lead-section .container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Header */
+.profile-picture {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    margin-left: 15px;
+    transition: transform 0.3s ease;
+}
+
+.profile-picture.floating {
+    animation: float 3s ease-in-out infinite;
+}
+
+
+
+.lead-section .lead-header h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.lead-section .lead-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Navigation */
+.lead-section .lead-nav {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.lead-section .lead-nav a {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    font-size: 16px;
+    color: #555;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.lead-section .lead-nav a.active, 
+.lead-section .lead-nav a:hover {
+    border-bottom: 2px solid #4f46e5;
+    color: #4f46e5;
+    transform: translateY(-2px);
+}
+
+/* Form Styles */
+.lead-section .lead-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.lead-section .form-group {
+    margin-bottom: 20px;
+}
+
+.lead-section .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.lead-section .form-group input, 
+.lead-section .form-group select, 
+.lead-section .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lead-section .form-group input:focus, 
+.lead-section .form-group select:focus, 
+.lead-section .form-group textarea:focus {
+    border-color: #4f46e5;
+    box-shadow: 0px 0px 8px rgba(79, 70, 229, 0.3);
+    outline: none;
+}
+
+.lead-section .help-text {
+    font-size: 12px;
+    color: #777;
+}
+
+.lead-section .error-text {
+    color: red;
+    font-size: 14px;
+}
+
+/* Submit Button */
+.lead-section .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lead-section .submit-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .lead-section .container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .lead-section .lead-nav {
+        flex-direction: column;
+    }
+
+    .lead-section .lead-nav a {
+        text-align: left;
+        padding: 10px;
+    }
+
+    .profile-picture {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lead-section .container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .lead-section .lead-header h1 {
+        font-size: 22px;
+    }
+
+    .lead-section .lead-nav a {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .profile-picture {
+        width: 40px;
+        height: 40px;
+    }
+}
+</style>
+
 {% endblock content %}

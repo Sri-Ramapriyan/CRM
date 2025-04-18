@@ -1,20 +1,194 @@
 {% extends "base.html" %}
-{% load tailwind_filters %}
 
 {% block content %}
 
-<div class="max-w-lg mx-auto">
-    <a class="hover:text-blue-500" href="{% url 'leads:category-list' %}">Go back to categories</a>
-    <div class="py-5 border-t border-gray-200">
-        <h1 class="text-4xl text-gray-800">Update {{ object.name }}</h1>
+<style>
+/* Scoped Styles */
+.category-update-container {
+    max-width: 500px;
+    margin: 40px auto;
+    font-family: Arial, sans-serif;
+    color: #374151; /* Gray-700 */
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+    
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.category-update-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.category-update-header h1 {
+    font-size: 26px;
+    font-weight: bold;
+    color: #1f2937; /* Dark Gray */
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.category-update-header h1::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    background: #3b82f6; /* Blue */
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.category-update-header h1:hover::after {
+    width: 100%;
+}
+
+/* Form Styling */
+.category-update-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    
+}
+
+/* Input Fields */
+.category-update-form input,
+.category-update-form select,
+.category-update-form textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #d1d5db; /* Gray-300 */
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-update-form input:focus,
+.category-update-form select:focus,
+.category-update-form textarea:focus {
+    border-color: #3b82f6; /* Blue */
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Labels */
+.category-update-form label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937; /* Dark Gray */
+}
+
+/* Submit Button */
+.category-update-form button {
+    width: 100%;
+    background: linear-gradient(135deg, #3b82f6, #2563eb); /* Blue Gradient */
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.category-update-form button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    top: 0;
+    left: -100%;
+    transition: left 0.3s ease;
+}
+
+.category-update-form button:hover::after {
+    left: 100%;
+}
+
+.category-update-form button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+/* Cancel Link */
+.category-update-link {
+    color: #3b82f6; /* Blue */
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.category-update-link:hover {
+    color: #2563eb; /* Dark Blue */
+    text-decoration: underline;
+    transform: translateX(5px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .category-update-container {
+        padding: 20px;
+    }
+
+    .category-update-header h1 {
+        font-size: 22px;
+    }
+
+    .category-update-form input,
+    .category-update-form select,
+    .category-update-form textarea {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .category-update-form button {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+</style>
+
+<div class="category-update-container">
+    <!-- Header -->
+    <div class="category-update-header">
+        <h1>Update {{ object.name }}</h1>
     </div>
-    <form method="post" class="mt-5">
+
+    <!-- Form -->
+    <form method="post" class="category-update-form">
         {% csrf_token %}
-        {{ form|crispy }}
-        <button type='submit' class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">
-            Submit
-        </button>
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+        {% endfor %}
+        <button type="submit">Submit</button>
     </form>
+
+    <!-- Cancel Link -->
+    <a class="category-update-link" href="{% url 'leads:category-list' %}">Cancel</a>
 </div>
 
 {% endblock content %}

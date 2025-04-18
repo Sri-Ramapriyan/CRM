@@ -1,27 +1,237 @@
 {% extends "base.html" %}
-{% load tailwind_filters %}
 
 {% block content %}
 
-<div class="max-w-lg mx-auto">
+<div class="lead-create-container">
     <!-- Heading -->
-    <div class="py-5 border-t border-gray-200">
-        <h1 class="text-4xl text-gray-800">Create a new lead</h1>
+    <div class="lead-header">
+        <h1>Create a New Lead</h1>
+        <p>Fill out the form below to add a new lead to your CRM.</p>
     </div>
 
     <!-- Form -->
-    <form method="post" class="mt-5">
+    <form method="post" class="lead-form">
         {% csrf_token %}
-        {{ form|crispy }}
-        <button type='submit' class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">
-            Submit
-        </button>
+        
+        {% for field in form %}
+        <div class="lead-form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+                <small class="lead-help-text">{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+                <p class="lead-error-text">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="lead-submit-btn">Submit</button>
     </form>
 
     <!-- Go back to leads link -->
-    <div class="mt-5">
-        <a class="hover:text-blue-500" href="{% url 'leads:lead-list' %}">Go back to leads</a>
+    <div class="lead-back-link">
+        <a href="{% url 'leads:lead-list' %}">Cancel</a>
     </div>
 </div>
+
+<style>
+/* Scoped styles to prevent affecting other CSS */
+.lead-create-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Header */
+.lead-header {
+    padding: 20px 0;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.lead-header h1 {
+    font-size: 32px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.lead-header p {
+    font-size: 16px;
+    color: #7f8c8d;
+    margin: 0;
+}
+
+/* Form */
+.lead-form {
+    margin-top: 20px;
+    margin-right: 20px;
+}
+
+.lead-form-group {
+    margin-bottom: 20px;
+}
+
+.lead-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #34495e;
+}
+
+.lead-form-group input,
+.lead-form-group select,
+.lead-form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lead-form-group input:focus,
+.lead-form-group select:focus,
+.lead-form-group textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+.lead-help-text {
+    font-size: 12px;
+    color: #95a5a6;
+    margin-top: 5px;
+}
+
+.lead-error-text {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Submit Button */
+.lead-submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.lead-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.lead-submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Go back to leads link */
+.lead-back-link {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.lead-back-link a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.lead-back-link a:hover {
+    color: #0056b3;
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .lead-create-container {
+        padding: 20px;
+        margin: 20px auto;
+    }
+
+    .lead-header h1 {
+        font-size: 28px;
+    }
+
+    .lead-header p {
+        font-size: 14px;
+    }
+
+    .lead-form-group input,
+    .lead-form-group select,
+    .lead-form-group textarea {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .lead-submit-btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .lead-back-link a {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lead-create-container {
+        padding: 15px;
+        margin: 15px auto;
+    }
+
+    .lead-header h1 {
+        font-size: 24px;
+    }
+
+    .lead-header p {
+        font-size: 13px;
+    }
+
+    .lead-form-group input,
+    .lead-form-group select,
+    .lead-form-group textarea {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .lead-submit-btn {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .lead-back-link a {
+        font-size: 13px;
+    }
+}
+</style>
 
 {% endblock content %}

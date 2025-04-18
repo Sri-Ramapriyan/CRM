@@ -7,6 +7,13 @@ from django.views import generic
 from .models import Lead, Agent, Category
 from .forms import  LeadModelForm, LeadForm, CustomUserCreationForm,AssignAgentForm,LeadCategoryUpdateForm,CategoryModelForm
 from agents.mixins import OrganisorAndLoginRequiredMixin
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.db.models import Count
+from django.db.models.functions import TruncDate
+#from chatbot.emotion_model.emotion_predict import predict_emotion
+
 
 
 # CRUD+L - Create, Retrieve, Update and Delete + List
@@ -32,20 +39,17 @@ class DashboardView(OrganisorAndLoginRequiredMixin, generic.TemplateView):
     template_name = "dashboard.html"
 
     def get_context_data(self, **kwargs):
-        context = super(DashboardView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         user = self.request.user
-
-        # How many leads we have in total
-        total_lead_count = Lead.objects.filter(organisation=user.userprofile).count()
-
-        # How many new leads in the last 30 days
         thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+
+        # Stats
+        total_lead_count = Lead.objects.filter(organisation=user.userprofile).count()
         total_in_past30 = Lead.objects.filter(
             organisation=user.userprofile,
             date_added__gte=thirty_days_ago
         ).count()
 
-        # How many completed leads in the last 30 days
         completed_category, _ = Category.objects.get_or_create(name="Completed", organisation=user.userprofile)
         completed_in_past30 = Lead.objects.filter(
             organisation=user.userprofile,
@@ -53,13 +57,34 @@ class DashboardView(OrganisorAndLoginRequiredMixin, generic.TemplateView):
             completed_date__gte=thirty_days_ago
         ).count()
 
+        # Leads per date for the line chart
+        leads_by_day_qs = (
+            Lead.objects.filter(organisation=user.userprofile, date_added__gte=thirty_days_ago)
+            .annotate(day=TruncDate('date_added'))
+            .values('day')
+            .annotate(count=Count('id'))
+            .order_by('day')
+        )
+        leads_by_date = list(leads_by_day_qs)
+
+        # Leads per category (optional)
+        categories = Category.objects.filter(organisation=user.userprofile)
+        category_data = [
+            {
+                "name": category.name,
+                "count": Lead.objects.filter(organisation=user.userprofile, category=category).count()
+            }
+            for category in categories
+        ]
+
         context.update({
             "total_lead_count": total_lead_count,
             "total_in_past30": total_in_past30,
-            "completed_in_past30": completed_in_past30  # Changed key name
+            "completed_in_past30": completed_in_past30,
+            "category_data": category_data,
+            "leads_by_date": json.dumps(leads_by_date, default=str),  # 👈 convert to JSON + date string
         })
         return context
-
 
 def landing_page(request):
     return render(request, "landing.html")
@@ -233,16 +258,15 @@ class CategoryListView(LoginRequiredMixin, generic.ListView):
         user = self.request.user
 
         if user.is_organisor:
-            queryset = Lead.objects.filter(
-                organisation=user.userprofile
-            )
+            leads = Lead.objects.filter(organisation=user.userprofile)
         else:
-            queryset = Lead.objects.filter(
-                organisation=user.agent.organisation
-            )
+            leads = Lead.objects.filter(organisation=user.agent.organisation)
+
+        # Get unassigned lead count
+        unassigned_lead_count = leads.filter(category__isnull=True).count()
 
         context.update({
-            "unassigned_lead_count": queryset.filter(category__isnull=True).count()
+            "unassigned_lead_count": unassigned_lead_count
         })
         return context
 
@@ -250,14 +274,14 @@ class CategoryListView(LoginRequiredMixin, generic.ListView):
         user = self.request.user
 
         if user.is_organisor:
-           queryset = Category.objects.filter(
-               organisation=user.userprofile
-                )
+            queryset = Category.objects.filter(
+                organisation=user.userprofile
+            ).annotate(lead_count=Count("leads"))
         else:
             queryset = Category.objects.filter(
                 organisation=user.agent.organisation
-                )
-            
+            ).annotate(lead_count=Count("leads"))
+
         return queryset
 
 class CategoryDetailView(LoginRequiredMixin, generic.DetailView):
@@ -344,6 +368,29 @@ class LeadCategoryUpdateView(LoginRequiredMixin, generic.UpdateView):
             queryset = queryset.filter(agent__user=user)
         return queryset
     
+    def form_valid(self, form):
+        lead = form.save(commit=False)
+        lead.category = form.cleaned_data["category"]  # Ensure the category is updated
+        lead.save()
+        print(f"Lead {lead.id} assigned to category: {lead.category}")  # Debugging
+        return super().form_valid(form)
+    
     def get_success_url(self):
         return reverse("leads:lead-detail", kwargs={"pk": self.get_object().id})
+
+
+@csrf_exempt
+def chat(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user_message = data.get('message')
+
+        # Add your AI logic here (e.g., call an AI API or use a chatbot library)
+        ai_response = f"AI: You said '{user_message}'"
+
+        return JsonResponse({'response': ai_response})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
 

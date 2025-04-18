@@ -1,23 +1,148 @@
 {% extends 'base.html' %}
-{% load tailwind_filters %}
 
 {% block content %}
 
-<div class="max-w-lg mx-auto">
-
-    <form method="post" class="mt-5">
+<div class="login-form-container">
+    <h1 class="form-title">Login Form</h1>
+    <form method="post" class="login-form">
         {% csrf_token %}
-        {{ form|crispy }}
-        <button type='submit' class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">
-            Login
-        </button>
+        {{ form.as_p }}
+        <div class="button-container">
+            <button type="submit" class="submit-button">Login</button>
+        </div>
     </form>
 
-    <div class="py-5 border-t border-gray-200 mt-5 flex justify-between">
-        <a class="hover:text-blue-500" href="{% url 'signup' %}">Don't have an account?</a>
-        <a class="hover:text-blue-500" href="{% url 'reset-password' %}">Forgot password?</a>
+    <div class="form-links">
+        <a href="{% url 'signup' %}" class="form-link">Don't have an account?</a>
+        <a href="{% url 'reset-password' %}" class="form-link">Forgot password?</a>
     </div>
-
 </div>
+
+<style>
+    /* Scoped styles for the login form container */
+    .login-form-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s ease forwards;
+        margin: 50px auto; /* Center the form */
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Login Form */
+    .login-form-container .login-form {
+        margin-bottom: 20px;
+        margin-right: 30px;
+        
+    }
+
+    .login-form-container .login-form p {
+        margin-bottom: 20px;
+    }
+
+    .login-form-container .login-form label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #1f2937; /* Dark gray */
+    }
+
+    .login-form-container .login-form input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e5e7eb; /* Light gray border */
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-form-container .login-form input:focus {
+        border-color: #3b82f6; /* Blue */
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+        outline: none;
+    }
+
+    /* Button Container (Centers Button) */
+    .login-form-container .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    /* Submit Button */
+    .login-form-container .submit-button {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #3b82f6, #2563eb); /* Blue gradient */
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 50%;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-form-container .submit-button:hover {
+        background: linear-gradient(135deg, #2563eb, #1e40af); /* Darker blue gradient */
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .login-form-container .submit-button:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form Links */
+    .login-form-container .form-links {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb; /* Light gray border */
+    }
+
+    .login-form-container .form-link {
+        color: #3b82f6; /* Blue */
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease, transform 0.2s ease;
+    }
+
+    .login-form-container .form-link:hover {
+        color: #2563eb; /* Darker blue */
+        text-decoration: underline;
+        transform: translateX(5px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
+        .login-form-container {
+            padding: 20px;
+        }
+
+        .login-form-container .submit-button {
+            width: 100%;
+        }
+
+        .login-form-container .form-links {
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+    }
+</style>
 
 {% endblock content %}

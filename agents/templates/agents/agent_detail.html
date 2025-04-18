@@ -2,30 +2,188 @@
 
 {% block content %}
 
-<section class="text-gray-700 body-font overflow-hidden">
-    <div class="container px-5 py-24 mx-auto">
-      <div class="lg:w-4/5 mx-auto flex flex-wrap">
-        <div class="w-full lg:pr-10 lg:py-6 mb-6 lg:mb-0">
-            <h2 class="text-sm title-font text-gray-500 tracking-widest">AGENT</h2>
-            <h1 class="text-gray-900 text-3xl title-font font-medium mb-4">{{ agent.user.username }}</h1>
-            <div class="flex mb-4">
-                <a href="{% url 'agents:agent-detail' agent.pk %}" class="flex-grow text-indigo-500 border-b-2 border-indigo-500 py-2 text-lg px-1">
-                    Overview
-                </a>
-                <a href="{% url 'agents:agent-update' agent.pk %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">
-                    Update Details
-                </a>    
-            </div>
-            <div class="flex border-t border-gray-300 py-2">
-                <span class="text-gray-500">Full Name</span>
-                <span class="ml-auto text-gray-900">{{ agent.user.username }}</span>
-            </div>
-            <div class="flex border-t border-gray-300 py-2">
-                <span class="text-gray-500">Email</span>
-                <span class="ml-auto text-gray-900">{{ agent.user.email }}</span>
-            </div>
+<style>
+/* Scoped styles using a unique class */
+.agent-container {
+    width: 80%;
+    max-width: 800px;
+    margin: 100px auto;
+    padding: 25px;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.agent-header {
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e5e7eb; /* Light gray border */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.agent-header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #1f2937; /* Dark gray */
+    letter-spacing: 0.5px;
+}
+
+.agent-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #6b7280; /* Light gray */
+    font-weight: 500;
+}
+
+/* Navigation Tabs */
+.agent-nav-tabs {
+    display: flex;
+    margin-top: 20px;
+    border-bottom: 2px solid #e5e7eb; /* Light gray border */
+}
+
+.agent-nav-tabs a {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    text-decoration: none;
+    color: #6b7280; /* Light gray */
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.agent-nav-tabs a.active, 
+.agent-nav-tabs a:hover {
+    border-bottom: 2px solid #3b82f6; /* Blue */
+    color: #3b82f6; /* Blue */
+    transform: translateY(-2px);
+}
+
+/* Agent Info Rows */
+.agent-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #e5e7eb; /* Light gray border */
+    transition: background-color 0.3s ease;
+}
+
+.agent-info-row:hover {
+    background-color: #f9fafb; /* Light gray background on hover */
+}
+
+.agent-info-row span {
+    font-weight: bold;
+    color: #1f2937; /* Dark gray */
+}
+
+.agent-info-row span:last-child {
+    color: #6b7280; /* Light gray */
+}
+
+/* Delete Button Styles */
+.action-buttons {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+
+.delete-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    background: linear-gradient(90deg, #ef4444, #dc2626); /* Red gradient */
+    color: white;
+    border: none;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(90deg, #dc2626, #b91c1c); /* Darker red gradient */
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+}
+
+.delete-btn svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .agent-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .agent-header h1 {
+        font-size: 24px;
+    }
+
+    .agent-nav-tabs a {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .delete-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+}
+</style>
+
+<div class="agent-container">
+    <div class="agent-header">
+        <div>
+            <h2>AGENT</h2>
+            <h1>{{ agent.user.username }}</h1>
         </div>
-      </div>
     </div>
-  </section>
+    
+    <div class="agent-nav-tabs">
+        <a href="{% url 'agents:agent-detail' agent.pk %}" class="active">Overview</a>
+        <a href="{% url 'agents:agent-update' agent.pk %}">Update Details</a>
+    </div>
+
+    <div class="agent-info-row">
+        <span>Full Name:</span>
+        <span>{{ agent.user.username }}</span>
+    </div>
+    <div class="agent-info-row">
+        <span>Email:</span>
+        <span>{{ agent.user.email }}</span>
+    </div>
+
+    <!-- Delete button placed directly under the email -->
+    <div class="action-buttons">
+        <a href="{% url 'agents:agent-delete' agent.pk %}" class="delete-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+            Delete
+        </a>
+    </div>
+</div>
+
 {% endblock content %}

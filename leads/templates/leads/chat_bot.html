@@ -1,0 +1,489 @@
+<!-- Chat Modal (Bottom-Right Corner) -->
+<div id="chat-modal" class="chat-modal">
+  <!-- Modal Header -->
+  <div class="chat-header">
+      <h3>AI Chat</h3>
+      <button id="close-modal" class="close-btn">&times;</button>
+  </div>
+
+  <!-- Modal Body -->
+  <div class="chat-body">
+      <div id="chat-messages"></div>
+  </div>
+
+  <!-- Modal Footer -->
+  <div class="chat-footer">
+      <input type="text" id="chat-input" placeholder="Type your message..." />
+      <button id="send-message">Send</button>
+  </div>
+</div>
+
+<!-- Chat Toggle Button (Floating at Bottom-Right) -->
+<button id="open-modal" class="chat-toggle-btn">
+  💬
+</button>
+
+<style>
+  /* Chat Modal */
+  .chat-modal {
+    position: fixed;
+    bottom: 120px;
+    right: 20px;
+    width: 320px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  
+  /* Modal Header */
+  .chat-header {
+    background: #007bff;
+    color: white;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+  
+  .chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  .close-btn:hover {
+    transform: rotate(90deg);
+  }
+  
+  /* Modal Body */
+  .chat-body {
+    padding: 12px;
+    height: 250px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #f8f9fa;
+  }
+
+  /* Chat Messages */
+  #chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; 
+    padding: 8px; 
+  }
+
+  .message {
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    display: inline-block;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .user-message {
+    background: #007bff;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+  }
+
+  .ai-message {
+    background: #eaeaea;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+  }
+
+  /* Modal Footer */
+  .chat-footer {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background: white;
+  }
+  
+  .chat-footer input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+  }
+
+  .chat-footer input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .chat-footer button {
+    margin-left: 8px;
+    padding: 8px 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chat-footer button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    top: 0;
+    left: -100%;
+    transition: left 0.3s ease;
+  }
+
+  .chat-footer button:hover::after {
+    left: 100%;
+  }
+
+  .chat-footer button:hover {
+    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0px 5px 15px rgba(0, 123, 255, 0.3);
+  }
+  
+  /* Chat Toggle Button */
+  .chat-toggle-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .chat-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Show Animation */
+  .chat-modal.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Hide Animation */
+  .chat-modal.hide {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+  }
+
+  /* Fade-in animation for messages */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .chat-modal {
+      width: 90%; /* Full width on small screens */
+      right: 5%; /* Center horizontally */
+      bottom: 80px; /* Adjust position for mobile */
+    }
+
+    .chat-body {
+      height: 50vh; /* Adjust height for mobile */
+    }
+
+    .chat-toggle-btn {
+      bottom: 20px; /* Adjust position for mobile */
+      right: 20px;
+    }
+  }
+</style>
+
+<!-- JavaScript for Chat Modal -->
+<script>
+ // Toggle Modal
+  // const chatModal = document.getElementById('chat-modal');
+  // const openModalButton = document.getElementById('open-modal');
+  // const closeModalButton = document.getElementById('close-modal');
+  // const chatInput = document.getElementById('chat-input');
+  // const chatMessages = document.getElementById('chat-messages');
+  // const sendMessageButton = document.getElementById('send-message');
+
+  // openModalButton.addEventListener('click', () => {
+  //   chatModal.classList.remove('hidden');
+  // });
+
+  // closeModalButton.addEventListener('click', () => {
+  //   chatModal.classList.add('hidden');
+  // });
+
+  // Send message on button click
+  // sendMessageButton.addEventListener('click', sendMessage);
+  // chatInput.addEventListener('keypress', (e) => {
+  //   if (e.key === 'Enter') sendMessage();
+  // });
+
+  // async function sendMessage() {
+  //   const message = chatInput.value.trim();
+  //   if (!message) return;
+
+  //   addMessage('user', message);
+  //   chatInput.value = '';
+
+    // Send message to backend (Django)
+  //   const response = await fetch('/chat/', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'X-CSRFToken': '{{ csrf_token }}', // Ensure CSRF token is passed for security
+  //     },
+  //     body: JSON.stringify({ message }),
+  //   });
+
+  //   const data = await response.json();
+  //   addMessage('ai', data.response); // AI response
+  // }
+
+  // Function to add messages to the chat
+  // function addMessage(sender, message) {
+  //   const messageElement = document.createElement('div');
+  //   messageElement.classList.add('p-2', 'rounded', 'max-w-xs', 'text-sm');
+  //   if (sender === 'user') {
+  //     messageElement.classList.add('bg-blue-500', 'text-white', 'ml-auto');
+  //   } else {
+  //     messageElement.classList.add('bg-gray-200', 'text-gray-800');
+  //   }
+  //   messageElement.textContent = message;
+  //   chatMessages.appendChild(messageElement);
+  //   chatMessages.scrollTop = chatMessages.scrollHeight;
+  // }
+
+  const chatModal = document.getElementById('chat-modal');
+  const openModalButton = document.getElementById('open-modal');
+  const closeModalButton = document.getElementById('close-modal');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
+  const sendMessageButton = document.getElementById('send-message');
+
+  openModalButton.addEventListener('click', () => {
+    chatModal.style.display = 'block';
+    setTimeout(() => {
+      chatModal.classList.add('show');
+      chatModal.classList.remove('hide');
+    }, 10);
+    chatInput.focus();
+  });
+
+  closeModalButton.addEventListener('click', () => {
+    chatModal.classList.add('hide');
+    setTimeout(() => {
+      chatModal.classList.remove('show');
+      chatModal.style.display = 'none';
+    }, 400);
+  });
+
+  // Send message on button click
+  sendMessageButton.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Function to send a message
+  function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    addMessage('user', message);
+    chatInput.value = '';
+
+    setTimeout(() => {
+      const aiResponse = getSimpleResponse(message);
+      addMessage('ai', aiResponse);
+    }, 700);
+  }
+
+  // Function to generate a simple AI response
+  function getSimpleResponse(userMessage) {
+    const responses = {
+      "hi": ["Hi there! ", "Hello! How can I assist?"],
+          "hello": ["Hey! ", "Hi there! Need help?"],
+          "how are you": ["I'm great! Thanks for asking. ", "I'm just a bot, but I'm good!"],
+          "bye": ["Goodbye! Have a nice day! ", "See you later!"],
+          "thank you": ["You're welcome! ", "No problem! Happy to help!"],
+          "what can you do": ["I can answer simple questions and chat with you! ", "I'm here to assist you with basic queries!"],
+          "what is a crm": [
+            "A CRM (Customer Relationship Management) system helps businesses manage customer interactions, track sales, and improve relationships.",
+            "CRM stands for Customer Relationship Management, a tool to store customer data and streamline communication."
+        ],
+        "how to add a new lead": [
+            "To add a new lead, go to the Leads section and click on 'Add New Lead'. Fill in the required details and save.",
+            "Adding a lead is easy! Navigate to Leads > Add Lead, enter the contact info, and submit."
+        ],
+        "how to assign a lead to an agent": [
+            "To assign a lead, go to the Leads section, select the lead, and choose an agent from the dropdown menu.",
+            "You can assign a lead by editing the lead details and selecting an available agent."
+        ],
+        "how to track lead status": [
+            "Lead statuses can be tracked in the Leads dashboard under 'Status'. Common statuses include New, Contacted, and Converted.",
+            "Check the status of a lead by going to the Leads page and viewing the status column."
+        ],
+        "how to generate sales reports": [
+            "To generate sales reports, navigate to the Reports section and select the date range you want to analyze.",
+            "Sales reports are available in the Dashboard under 'Reports'. Filter by date and team for better insights."
+        ],
+        "how to automate follow-ups": [
+            "You can automate follow-ups by setting reminders in the CRM or using workflow automation tools.",
+            "To set up automated follow-ups, configure email sequences in the automation settings."
+        ],
+        "how to add a new agent": [
+            "To add an agent, go to Agents > Add New Agent, enter their details, and assign permissions.",
+            "Admins can add agents in the Agents section by clicking 'Add Agent' and providing login credentials."
+        ],
+        "how to integrate email with crm": [
+            "You can integrate your email with the CRM by going to Settings > Email Integration and connecting your account.",
+            "Email integration allows you to sync emails directly with customer profiles. Configure this in CRM settings."
+        ],
+        "how to import leads": [
+            "Leads can be imported via CSV files. Go to Leads > Import, upload the file, and match the fields.",
+            "To import leads, use the 'Import Leads' button in the Leads section and follow the steps to upload a CSV file."
+        ],
+        "how to export lead data": [
+            "Lead data can be exported in CSV format by going to Leads > Export and selecting the required fields.",
+            "To export leads, navigate to the Leads dashboard, click 'Export', and download the file."
+        ],
+        "how to set reminders for follow-ups": [
+            "You can set reminders in the CRM by adding a task under the follow-ups section with a due date.",
+            "To set a reminder, go to a lead’s profile, click 'Set Reminder', and choose a date and time."
+        ],
+        "how to change lead priority": [
+            "Lead priority can be changed by editing the lead details and selecting 'High', 'Medium', or 'Low'.",
+            "To update lead priority, go to Leads, select a lead, and adjust the priority setting."
+        ],
+        "how to send bulk emails": [
+            "To send bulk emails, use the Campaigns module and create an email list from your leads.",
+            "Bulk emails can be sent from the Email Marketing section. Choose your recipients and send personalized messages."
+        ],
+        "how to view customer interactions": [
+            "Customer interactions can be viewed in the customer profile under 'Activity History'.",
+            "Check a customer's past interactions by opening their profile and reviewing logged emails, calls, and notes."
+        ],
+        "how to customize crm dashboard": [
+            "The CRM dashboard can be customized in the Settings section. Choose the widgets you want to display.",
+            "To personalize your dashboard, go to Dashboard > Customize and select key metrics for quick access."
+        ],
+        "how to create sales pipelines": [
+            "Sales pipelines can be created in the Pipeline Management section. Define stages and add leads accordingly.",
+            "To set up a sales pipeline, go to Sales > Pipelines, create a new pipeline, and define deal stages."
+        ],
+        "how to log a call with a lead": [
+            "Call logs can be added by opening the lead's profile and clicking 'Log Call'. Enter the details and save.",
+            "To log a call, go to the lead's profile, find the 'Call Log' section, and add the call details."
+        ],
+        "how to get crm support": [
+            "For CRM support, visit the Help Center or contact our support team via the 'Contact Us' page.",
+            "Need help? Reach out to our support team through live chat or email support@smartcrm.com."
+        ],
+        "how to add a lead": [
+      "To add a lead, go to the 'Leads' section and click on 'Create Lead'. Fill in the details and save.",
+      "You can add a lead by navigating to the 'Leads' page and clicking the 'Create Lead' button."
+    ],
+    "how to update a lead": [
+      "To update a lead, go to the 'Leads' section, find the lead you want to update, and click 'Edit'.",
+      "You can update a lead by selecting it from the 'Leads' list and clicking the 'Edit' button."
+    ],
+    "how to delete a lead": [
+      "To delete a lead, go to the 'Leads' section, find the lead, and click 'Delete'.",
+      "You can delete a lead by selecting it from the 'Leads' list and clicking the 'Delete' button."
+    ],
+    "how to assign a lead": [
+      "To assign a lead, go to the 'Leads' section, find the lead, and click 'Assign Agent'. Choose an agent and save.",
+      "You can assign a lead by selecting it from the 'Leads' list and clicking 'Assign Agent'."
+    ],
+
+    // Agent-related responses
+    "how to add an agent": [
+      "To add an agent, go to the 'Agents' section and click on 'Create Agent'. Fill in the details and save.",
+      "You can add an agent by navigating to the 'Agents' page and clicking the 'Create Agent' button."
+    ],
+    "how to update an agent": [
+      "To update an agent, go to the 'Agents' section, find the agent, and click 'Edit'.",
+      "You can update an agent by selecting it from the 'Agents' list and clicking the 'Edit' button."
+    ],
+    "how to delete an agent": [
+      "To delete an agent, go to the 'Agents' section, find the agent, and click 'Delete'.",
+      "You can delete an agent by selecting it from the 'Agents' list and clicking the 'Delete' button."
+    ],
+
+    // Category-related responses
+    "how to add a category": [
+      "To add a category, go to the 'Categories' section and click on 'Create Category'. Fill in the details and save.",
+      "You can add a category by navigating to the 'Categories' page and clicking the 'Create Category' button."
+    ],
+    "how to update a category": [
+      "To update a category, go to the 'Categories' section, find the category, and click 'Edit'.",
+      "You can update a category by selecting it from the 'Categories' list and clicking the 'Edit' button."
+    ],
+    "how to delete a category": [
+      "To delete a category, go to the 'Categories' section, find the category, and click 'Delete'.",
+      "You can delete a category by selecting it from the 'Categories' list and clicking the 'Delete' button."
+    ],
+      "default": ["I'm not sure how to respond to that. Can you rephrase your question?", "I'm here to help with CRM tasks. Could you clarify your request?"]
+    };
+    const lowerCaseMessage = userMessage.toLowerCase();
+    const possibleResponses = responses[lowerCaseMessage] || responses["default"];
+    return possibleResponses[Math.floor(Math.random() * possibleResponses.length)];
+  }
+
+  // Function to add messages to the chat
+  function addMessage(sender, message) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.textContent = message;
+
+    if (sender === 'user') {
+      messageElement.classList.add('user-message');
+    } else {
+      messageElement.classList.add('ai-message');
+    }
+
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+  }
+</script>

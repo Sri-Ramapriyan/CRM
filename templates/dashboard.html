@@ -2,35 +2,486 @@
 {% load static %}
 
 {% block content %}
-<section class="text-gray-700 body-font">
-    <div class="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
-      <div class="text-center lg:w-2/3 w-full">
-        <h1 class="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
-            CRM Dashboard
-        </h1>
-    
-        <div class="flex flex-wrap -m-4 text-center">
-            <div class="p-4 md:w-1/3 sm:w-1/2 w-full">
-                <div class="border-2 border-gray-200 px-4 py-6 rounded-lg">
-                <h2 class="title-font font-medium text-3xl text-gray-900">{{ total_lead_count }}</h2>
-                <p class="leading-relaxed">Total Leads</p>
+<section class="dashboard-section">
+    <div class="dashboard-container">
+        <div class="dashboard-content">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">🚀 CRM Dashboard</h1>
+                <p class="dashboard-subtitle">Your complete lead management overview</p>
+            </div>
+
+            <!-- Stats Section with more spacing -->
+            <div class="stats-container">
+                <!-- Stat Item 1 -->
+                <div class="stat-item">
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h2 class="stat-value">{{ total_lead_count|default:"0" }}</h2>
+                            <p class="stat-label">Total Leads</p>
+                            <div class="stat-trend neutral">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                                    <polyline points="5 12 12 5 19 12"></polyline>
+                                </svg>
+                                All time
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stat Item 2 -->
+                <div class="stat-item">
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h2 class="stat-value">{{ total_in_past30|default:"0" }}</h2>
+                            <p class="stat-label">New Leads (30d)</p>
+                            <div class="stat-trend up">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                    <polyline points="17 6 23 6 23 12"></polyline>
+                                </svg>
+                                {{ new_leads_percentage|default:"0" }}% vs previous
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stat Item 3 -->
+                <div class="stat-item">
+                    <div class="stat-box">
+                        <div class="stat-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h2 class="stat-value">{{ completed_in_past30|default:"0" }}</h2>
+                            <p class="stat-label">Completed (30d)</p>
+                            <div class="stat-trend down">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                                    <polyline points="17 18 23 18 23 12"></polyline>
+                                </svg>
+                                {{ completed_percentage|default:"0" }}% vs previous
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="p-4 md:w-1/3 sm:w-1/2 w-full">
-                <div class="border-2 border-gray-200 px-4 py-6 rounded-lg">
-                <h2 class="title-font font-medium text-3xl text-gray-900">{{ total_in_past30 }}</h2>
-                <p class="leading-relaxed">Leads added in last 30 days</p>
+
+            <!-- Spacer between stats and charts -->
+            <div class="section-spacer"></div>
+
+            <!-- Charts Section with more space -->
+            <div class="charts-container">
+                <!-- Chart 1 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Leads Over Time</h3>
+                        <div class="chart-actions">
+                            <button class="time-filter active">30D</button>
+                            <button class="time-filter">90D</button>
+                            <button class="time-filter">1Y</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="leadsOverTimeChart" width="400" height="200"></canvas>
+                    </div>
                 </div>
-            </div>
-            <div class="p-4 md:w-1/3 sm:w-1/2 w-full">
-                <div class="border-2 border-gray-200 px-4 py-6 rounded-lg">
-                <h2 class="title-font font-medium text-3xl text-gray-900">{{ completed_in_past30 }}</h2>
-                <p class="leading-relaxed">Completed in last 30 days</p>
+                
+                <!-- Chart 2 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Conversion Status</h3>
+                        <div class="chart-actions">
+                            <button class="time-filter active">30D</button>
+                            <button class="time-filter">90D</button>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="completedVsInProgressChart" width="400" height="200"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        
-      </div>
     </div>
 </section>
-{% endblock content %}
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js Plugin for Gradient -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-gradient"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Safely parse the leads_by_date data with fallback
+    const leadsByDate = JSON.parse('{{ leads_by_date|default:"[]"|escapejs }}');
+    const labels = leadsByDate.map(entry => {
+        const date = new Date(entry.day);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const data = leadsByDate.map(entry => entry.count);
+
+    // Create gradient for line chart
+    function createLineGradient(ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+        gradient.addColorStop(0, 'rgba(0, 123, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 123, 255, 0)');
+        return gradient;
+    }
+
+    // Line Chart
+    const lineCtx = document.getElementById('leadsOverTimeChart')?.getContext('2d');
+    if (lineCtx) {
+        const lineGradient = createLineGradient(lineCtx);
+        
+        new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Leads Added',
+                    data: data,
+                    borderColor: '#3a86ff',
+                    backgroundColor: lineGradient,
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#3a86ff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#2b2d42',
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                return context.parsed.y + ' leads';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#6c757d' } },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { color: '#6c757d', precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+
+    // Donut Chart with safe defaults
+    const completedCount = Number('{{ completed_in_past30|default:"0" }}');
+    const totalCount = Number('{{ total_in_past30|default:"0" }}');
+    const inProgressCount = Math.max(totalCount - completedCount, 0);
+
+    const donutCtx = document.getElementById('completedVsInProgressChart')?.getContext('2d');
+    if (donutCtx) {
+        new Chart(donutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'In Progress'],
+                datasets: [{
+                    data: [completedCount, inProgressCount],
+                    backgroundColor: ['rgba(40, 167, 69, 0.8)', 'rgba(255, 193, 7, 0.8)'],
+                    borderColor: ['rgba(40, 167, 69, 1)', 'rgba(255, 193, 7, 1)'],
+                    borderWidth: 1,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? Math.round((context.raw / total) * 100) : 0;
+                                return context.label + ': ' + context.raw + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+
+<style>
+    :root {
+        --primary: #3a86ff;
+        --primary-light: rgba(58, 134, 255, 0.1);
+        --secondary: #8338ec;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --dark: #2b2d42;
+        --light: #f8f9fa;
+        --gray: #6c757d;
+        --white: #ffffff;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        --radius: 12px;
+        --transition: all 0.3s ease;
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: #f8fafc;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .dashboard-section {
+        padding: 40px 0;
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 30px;
+    }
+
+    .dashboard-header {
+        text-align: left;
+        margin-bottom: 50px;
+    }
+
+    .dashboard-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: var(--dark);
+    }
+
+    .dashboard-subtitle {
+        font-size: 1rem;
+        color: var(--gray);
+        margin: 0;
+    }
+
+    /* Stats Section */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        margin: 0 auto;
+    }
+
+    .stat-item {
+        transition: var(--transition);
+    }
+
+    .stat-box {
+        padding: 30px;
+        border-radius: var(--radius);
+        background: var(--white);
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+    }
+
+    .stat-content {
+        margin-top: 15px;
+    }
+
+    .stat-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 10px 0 5px 0;
+        color: var(--dark);
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: var(--gray);
+        margin: 0 0 15px 0;
+    }
+
+    .stat-trend {
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    /* Spacer between sections */
+    .section-spacer {
+        height: 60px;
+    }
+
+    /* Charts Section */
+    .charts-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 40px;
+        margin-top: 20px;
+    }
+
+    .chart-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .chart-header {
+        padding: 25px 25px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chart-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .chart-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .time-filter {
+        padding: 6px 14px;
+        border-radius: 20px;
+        background: var(--light);
+        color: var(--gray);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
+    }
+
+    .time-filter.active {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .chart-wrapper {
+        padding: 20px;
+        position: relative;
+        height: 350px;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 1200px) {
+        .charts-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .chart-wrapper {
+            height: 300px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 0 20px;
+        }
+        
+        .stats-container {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .stat-box {
+            padding: 25px;
+        }
+        
+        .section-spacer {
+            height: 40px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .dashboard-title {
+            font-size: 1.8rem;
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+        }
+        
+        .chart-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px 20px 0;
+        }
+        
+        .chart-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+        
+        .chart-wrapper {
+            height: 280px;
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}

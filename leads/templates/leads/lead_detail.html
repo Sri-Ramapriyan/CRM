@@ -1,54 +1,357 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
+<style>
+    /* General Styles */
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa);
+    }
 
-<section class="text-gray-700 body-font overflow-hidden">
-    <div class="container px-5 py-24 mx-auto">
-        <div class="lg:w-4/5 mx-auto flex flex-wrap">
-            <div class="w-full lg:pr-10 lg:py-6 mb-6 lg:mb-0">
-                <div class="w-full flex items-center justify-between space-x-6">
-                    <div class="flex-1 truncate">
-                        <div class="flex items-center space-x-3">
-                            <h3 class="text-3xl text-gray-900 font-medium truncate">{{ lead.first_name }} {{ lead.last_name }}</h3>
-                        </div>
-                        <p class="mt-1 text-xl text-gray-500 truncate">{{ lead.description }}</p>
-                    </div>
-                    {% if lead.profile_picture %}
-                    <img class="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0" src="{{ lead.profile_picture.url }}" alt="">
-                    {% endif %}
-                </div>
-                <div class="flex mb-4">
-                    <a href="{% url 'leads:lead-detail' lead.pk %}" class="flex-grow text-indigo-500 border-b-2 border-indigo-500 py-2 text-lg px-1">
-                        Overview
-                    </a>
-                    <a href="{% url 'leads:lead-category-update' lead.pk %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">
-                        Category
-                    </a>
-                    <a href="{% url 'leads:lead-update' lead.pk %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">
-                        Update Details
-                    </a>    
-                </div>
-                <div class="flex border-t border-gray-300 py-2">
-                    <span class="text-gray-500">Age</span>
-                    <span class="ml-auto text-gray-900">{{ lead.age }}</span>
-                </div>
-                <div class="flex border-t border-gray-300 py-2">
-                    <span class="text-gray-500">Email</span>
-                    <span class="ml-auto text-gray-900">{{ lead.email }}</span>
-                </div>
-                <div class="flex border-t border-gray-300 py-2">
-                    <span class="text-gray-500">Phone Number</span>
-                    <span class="ml-auto text-gray-900">{{ lead.phone_number }}</span>
-                </div>
-                <div class="flex border-t border-gray-300 py-2">
-                    <span class="text-gray-500">Address</span>
-                    <span class="ml-auto text-gray-900">{{ lead.address }}</span>
-                </div>
-                <div class="flex border-t border-b mb-6 border-gray-300 py-2">
-                    <span class="text-gray-500">Agent</span>
-                    <span class="ml-auto text-gray-900">{{ lead.agent }}</span>
-                </div>
-            </div>
+    .lead-container {
+        width: 80%;
+        max-width: 800px;
+        margin: 100px auto;
+        padding: 30px;
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
+    .lead-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .lead-header {
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .lead-header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .lead-nav-tabs {
+        display: flex;
+        margin-top: 20px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .lead-nav-tabs a {
+        flex: 1;
+        text-align: center;
+        padding: 12px;
+        text-decoration: none;
+        color: #555;
+        border-bottom: 2px solid transparent;
+        transition: color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .lead-nav-tabs a.active, 
+    .lead-nav-tabs a:hover {
+        border-bottom: 2px solid #1d4ed8;
+        color: #1d4ed8;
+        transform: translateY(-2px);
+    }
+
+    .lead-info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #e5e7eb;
+        transition: background-color 0.3s ease;
+    }
+
+    .lead-info-row:hover {
+        background-color: #f9fafb; /* Light background on hover */
+    }
+
+    .lead-info-row span {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .profile-picture {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid #ddd;
+        margin-left: 15px;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-picture:hover {
+        transform: scale(1.1); /* Slight scale-up effect on hover */
+    }
+
+    .profile-picture.floating {
+        animation: float 3s ease-in-out infinite;
+    }
+
+  
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+
+    .btn-edit, .btn-delete {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+    }
+
+    .btn-edit:hover {
+        background: linear-gradient(135deg, #0056b3, #004080);
+        transform: translateY(-2px); /* Slight lift effect */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-delete {
+        background: linear-gradient(135deg, #e63946, #c62828);
+    }
+
+    .btn-delete:hover {
+        background: linear-gradient(135deg, #c62828, #a32020);
+        transform: translateY(-2px); /* Slight lift effect */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .lead-container {
+            width: 90%;
+            padding: 20px;
+        }
+
+        .lead-header h1 {
+            font-size: 24px;
+        }
+
+        .lead-nav-tabs a {
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .lead-info-row {
+            padding: 12px 0;
+        }
+
+        .profile-picture {
+            width: 50px;
+            height: 50px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        .lead-info-row.address-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .lead-info-row.address-row span:last-child {
+            word-break: break-word;
+            white-space: normal;
+            text-align: left;
+            width: 100%;
+            color: #4b5563;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .lead-info-row.address-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .lead-info-row.address-row span:last-child {
+            word-break: break-word;
+            white-space: normal;
+            text-align: left;
+            width: 100%;
+            color: #4b5563;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+    }
+    .whatsapp-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background-color: #e0f2fe;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #0f172a;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(186, 230, 253, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .whatsapp-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.4), 
+            transparent);
+        transition: 0.6s;
+    }
+
+    .whatsapp-link:hover {
+        background-color: #bae6fd;
+        color: #1e3a8a;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .whatsapp-link:hover::before {
+        left: 100%;
+    }
+
+    .whatsapp-link:active {
+        transform: translateY(-1px);
+    }
+
+    .whatsapp-icon {
+        width: 20px;
+        height: 20px;
+        filter: grayscale(40%) brightness(0.9);
+        transition: all 0.4s ease;
+    }
+
+    .whatsapp-link:hover .whatsapp-icon {
+        transform: scale(1.15) rotate(5deg);
+        filter: none;
+        animation: iconPulse 1.5s ease infinite;
+    }
+
+    @keyframes iconPulse {
+        0%, 100% { transform: scale(1.15) rotate(5deg); }
+        50% { transform: scale(1.2) rotate(5deg); }
+    }
+
+    /* Subtle background pulse effect */
+    @keyframes bgPulse {
+        0%, 100% { background-color: #bae6fd; }
+        50% { background-color: #7dd3fc; }
+    }
+
+    .whatsapp-link:hover {
+        animation: bgPulse 3s ease infinite;
+    }
+
+    .lead-info-row.address-row {
+        /* Default desktop styling (same as others) */
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+      
+
+</style>
+
+<div class="lead-container">
+    <h2>LEAD</h2>
+    <div class="lead-header">
+        <div style="display: flex; align-items: center;">
+            {% if lead.profile_picture %}
+                <img src="{{ lead.profile_picture.url }}" alt="Profile Picture" class="profile-picture floating">
+            {% endif %}
+            <h1 style="margin-left: 15px;">{{ lead.first_name }} {{ lead.last_name }}</h1>
+        </div>
+    </div>
+    
+    <div class="lead-nav-tabs">
+        <a href="{% url 'leads:lead-detail' lead.pk %}" class="active">Overview</a>
+        <a href="{% url 'leads:lead-category-update' lead.pk %}">Status</a>
+        <a href="{% url 'leads:lead-update' lead.pk %}">Update Details</a>
+    </div>
+
+    <div class="lead-info-row">
+        <span>Age:</span>
+        <span>{{ lead.age }}</span>
+    </div>
+    <div class="lead-info-row">
+        <span>Email:</span>
+        <span>{{ lead.email }}</span>
+    </div>
+    <div class="lead-info-row">
+        <span>Phone Number:</span>
+        <span>
+            <a href="https://wa.me/{{ lead.phone_number|cut:' '|cut:'+'|cut:'-'|cut:'('|cut:')' }}" 
+               class="whatsapp-link" 
+               target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
+                     alt="WhatsApp" 
+                     class="whatsapp-icon">
+                {{ lead.phone_number }}
+            </a>
+        </span>
+    </div>
+    <div class="lead-info-row address-row">
+        <span>Address:</span>
+        <span>{{ lead.address }}</span>
+    </div>
+    <div class="lead-info-row">
+        <span>Agent:</span>
+        <span>{{ lead.agent }}</span>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{% url 'leads:lead-delete' lead.pk %}" class="btn-delete">Delete</a>
+    </div>
+</div>
 
 {% endblock content %}

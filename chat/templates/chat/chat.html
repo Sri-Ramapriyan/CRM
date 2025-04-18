@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    body {
+        background-color: #ececec;
+    }
+
+    .chat-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .chat-header {
+        font-size: 1.875rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+    .chat-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 25%;
+        width: 50%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #007bff, transparent);
+    }
+
+    .chat-box {
+        background-color: #e1e1e1;
+        padding: 20px;
+        height: 55vh;
+        max-height: 600px;
+        overflow-y: auto;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .chat-message {
+        padding: 8px 12px;
+        margin: 4px 0;
+        border-radius: 7.5px;
+        max-width: 70%;
+        position: relative;
+        font-size: 0.9375rem;
+        word-wrap: break-word;
+        line-height: 1.4;
+        transition: all 0.3s ease-out;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .chat-message p {
+        margin: 0;
+    }
+
+    .chat-message.sent {
+        background-color: #007bff;
+        color: white;
+        align-self: flex-end;
+        border-top-right-radius: 0;
+        margin-left: 20%;
+        box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-message.received {
+        background-color: #ffffff;
+        color: #2c3e50;
+        align-self: flex-start;
+        border-top-left-radius: 0;
+        margin-right: 20%;
+        box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-message:hover {
+        transform: scale(1.02);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .chat-form {
+        display: flex;
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .chat-input-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        background-color: white;
+        border-radius: 20px;
+        padding: 5px 15px;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+    }
+
+    .chat-input-wrapper textarea {
+        flex: 1;
+        border: none;
+        outline: none;
+        resize: none;
+        padding: 10px 0;
+        font-size: 0.9375rem;
+        max-height: 100px;
+        min-height: 40px;
+        background-color: transparent;
+    }
+
+    .chat-submit {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        margin-top: 10px;
+        margin-left: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-submit:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .chat-submit:active {
+        transform: scale(0.95);
+    }
+
+    .back-link {
+        color: #007bff;
+        text-decoration: none;
+        font-size: 1rem;
+        display: inline-block;
+        margin-top: 20px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        background-color: #007bff;
+        color: white;
+        transform: translateX(-3px);
+    }
+
+    .message-time {
+        font-size: 0.6875rem;
+        color: #667781;
+        text-align: right;
+        margin-top: 2px;
+        margin-left: 10px;
+    }
+
+    .chat-textarea {
+        width: 100%;
+        border: none;
+        outline: none;
+        resize: none;
+        background: transparent;
+        font-size: 0.9375rem;
+        padding: 10px 0;
+        height: 40px;
+        line-height: 1.5;
+    }
+      /* Date‑separator pill */
+  .date-separator {
+    text-align: center;
+    margin: 1rem 0;
+  }
+  .date-separator span {
+    display: inline-block;
+    background: #e2e8f0;
+    color: #2d3748;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  /* Message time below bubble */
+  .message-time {
+    font-size: 0.6875rem;
+    color: rgba(255,255,255,0.7);
+    margin-top: 4px;
+    text-align: right;
+  }
+  .chat-message.received .message-time {
+    color: rgba(0,0,0,0.5);
+  }
+</style>
+
+<div class="chat-container">
+    <h2 class="chat-header">Chat with {{ receiver.username }}</h2>
+  
+    <div class="chat-box"  id= "chat-box">
+      {# Regroup messages by date #}
+      {% regroup messages by timestamp.date as date_groups %}
+      {% for group in date_groups %}
+        <div class="date-separator">
+          <span>{{ group.grouper|date:"F j, Y" }}</span>
+        </div>
+        {% for msg in group.list %}
+          <div class="chat-message {% if msg.sender == user %}sent{% else %}received{% endif %}">
+            <p>{{ msg.content }}</p>
+            <div class="message-time">{{ msg.timestamp|time:"g:i A" }}</div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  
+    <form method="post" class="chat-form">
+      {% csrf_token %}
+      <div class="chat-input-wrapper">
+        {{ form.content }}
+      </div>
+      <button type="submit" class="chat-submit" aria-label="Send">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </form>
+  
+    <a href="{% url 'chat:inbox' %}" class="back-link">← Back to Inbox</a>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        const messages = chatBox.querySelectorAll('.chat-message');
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage) {
+            lastMessage.style.opacity = 0;
+            lastMessage.style.transform = 'translateY(15px)';
+            requestAnimationFrame(() => {
+                lastMessage.style.transition = 'all 0.3s ease-out';
+                lastMessage.style.opacity = 1;
+                lastMessage.style.transform = 'translateY(0)';
+            });
+        }
+    });
+
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function () {
+        setTimeout(() => {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const messages = chatBox.querySelectorAll('.chat-message');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage) {
+                lastMessage.style.opacity = 0;
+                lastMessage.style.transform = 'translateY(15px)';
+                requestAnimationFrame(() => {
+                    lastMessage.style.transition = 'all 0.3s ease-out';
+                    lastMessage.style.opacity = 1;
+                    lastMessage.style.transform = 'translateY(0)';
+                });
+            }
+        }, 100);
+    });
+</script>
+
+{% endblock content %}

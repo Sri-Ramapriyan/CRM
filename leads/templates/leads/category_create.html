@@ -1,20 +1,173 @@
 {% extends "base.html" %}
-{% load tailwind_filters %}
 
 {% block content %}
 
-<div class="max-w-lg mx-auto">
-    <a class="hover:text-blue-500" href="{% url 'leads:category-list' %}">Go back to categories</a>
-    <div class="py-5 border-t border-gray-200">
-        <h1 class="text-4xl text-gray-800">Create a new category</h1>
+<style>
+/* Scoped Styles */
+.create-container {
+    max-width: 500px;
+    margin: 40px auto;
+    font-family: Arial, sans-serif;
+    color: #374151; /* Gray-700 */
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hover Effect */
+.create-container:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Header */
+.create-header {
+    border-top: 3px solid #3b82f6; /* Blue Accent */
+    padding-top: 20px;
+    margin-bottom: 20px;
+}
+
+.create-header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1f2937; /* Dark Gray */
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+.create-header h1::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    background: #3b82f6; /* Blue */
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.create-header h1:hover::after {
+    width: 100%;
+}
+
+/* Form Styling */
+.create-form {
+    margin-top: 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers form fields horizontally */
+}
+
+.create-form label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    width: 100%;
+    color: #1f2937; /* Dark Gray */
+}
+
+.create-form input,
+.create-form textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #d1d5db; /* Gray-300 */
+    border-radius: 8px;
+    margin-bottom: 15px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.create-form input:focus,
+.create-form textarea:focus {
+    border-color: #3b82f6; /* Blue */
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Submit Button */
+.create-form button {
+    width: 80%;
+    background: linear-gradient(90deg, #3b82f6, #2563eb); /* Blue Gradient */
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin: 10px auto; /* Centers the button horizontally */
+}
+
+.create-form button:hover {
+    background: linear-gradient(90deg, #2563eb, #1e40af);
+    transform: scale(1.05);
+    box-shadow: 0 5px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Cancel Link */
+.cancel-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #3b82f6; /* Blue */
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.cancel-link:hover {
+    color: #2563eb; /* Dark Blue */
+    text-decoration: underline;
+    transform: translateX(5px);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .create-container {
+        padding: 20px;
+    }
+
+    .create-form button {
+        width: 90%;
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+</style>
+
+<div class="create-container">
+    <div class="create-header">
+        <h1>Create a new category</h1>
     </div>
-    <form method="post" class="mt-5">
+
+    <form method="post" class="create-form">
         {% csrf_token %}
-        {{ form|crispy }}
-        <button type='submit' class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">
-            Submit
-        </button>
+        
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+        {% endfor %}
+        
+        <button type="submit">Submit</button>
     </form>
+    
+    <a class="cancel-link" href="{% url 'leads:category-list' %}">Cancel</a>
 </div>
 
 {% endblock content %}

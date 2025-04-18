@@ -54,3 +54,5 @@ class CategoryModelForm(forms.ModelForm):
         fields = (
             'name',
         )       
+
+

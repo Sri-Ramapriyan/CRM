@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 
 
+
 class User(AbstractUser):
     is_organisor = models.BooleanField(default=True)
     is_agent = models.BooleanField(default=False)
@@ -56,11 +57,20 @@ class Agent(models.Model):
         return self.user.email
     
 class Category(models.Model):
-    name = models.CharField(max_length=30)  # New, Contacted, Converted, Unconverted
+    name = models.CharField(max_length=30)  
     organisation = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+
+    
 
     def __str__(self):
         return self.name
+    
+    def get_lead_count(self):
+        return self.leads.count()
+
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
     
 
 
@@ -71,5 +81,3 @@ def post_user_created_signal(sender, instance, created, **kwargs):
 
 post_save.connect(post_user_created_signal, sender=User)
     
-
-                        

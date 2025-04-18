@@ -1,43 +1,229 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="text-gray-600 body-font">
-    <div class="container px-5 py-24 mx-auto">
-        <div class="flex flex-col text-center w-full mb-20">
-            <h1 class="sm:text-4xl text-3xl font-medium title-font mb-2 text-gray-900">{{ category.name }}</h1>
-            <p class="lg:w-2/3 mx-auto leading-relaxed text-base">These are the leads under this category</p>
-        </div>
 
-        <!-- Flex container for Update & Delete buttons -->
-        <div class="lg:w-2/3 w-full mx-auto flex justify-between mb-4">
-            <a href="{% url 'leads:category-update' category.pk %}" class="text-blue-500 hover:underline">
-                Update
-            </a>
-            <a href="{% url 'leads:category-delete' category.pk %}" class="text-red-500 hover:underline">
-                Delete
-            </a>
-        </div>
+<style>
+/* Scoped Styles */
+.category-detail-container {
+    max-width: 800px;
+    margin: 40px auto;
+    font-family: Arial, sans-serif;
+    color: #374151; /* Gray-700 */
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
 
-        <div class="lg:w-2/3 w-full mx-auto overflow-auto">
-            <table class="table-auto w-full text-left whitespace-no-wrap">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100 rounded-tl rounded-bl">First Name</th>
-                        <th class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">Last Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for lead in category.leads.all %}
-                    <tr>
-                        <td class="px-4 py-3">
-                            <a class="hover:text-blue-500" href="{% url 'leads:lead-detail' lead.pk %}">{{ lead.first_name }}</a>
-                        </td>
-                        <td class="px-4 py-3">{{ lead.last_name }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Cool Hover Effect */
+.category-detail-container:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Header */
+.category-detail-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.category-detail-header h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #1f2937; /* Dark Gray */
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+.category-detail-header h1::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    background: #3b82f6; /* Blue */
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.category-detail-header h1:hover::after {
+    width: 100%;
+}
+
+.category-detail-header p {
+    font-size: 15px;
+    color: #6b7280; /* Gray-500 */
+}
+
+/* Action Links */
+.category-detail-actions {
+    display: flex;
+    justify-content: space-between; /* Justify buttons */
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.category-detail-actions a {
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Update Button */
+.update-btn {
+    color: white;
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
+}
+
+.update-btn:hover {
+    background: linear-gradient(90deg, #2563eb, #1e40af);
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* Delete Button */
+.delete-btn {
+    color: white;
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.delete-btn:hover {
+    background: linear-gradient(90deg, #dc2626, #b91c1c);
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Table */
+.category-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-top: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.category-table th, 
+.category-table td {
+    padding: 14px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid #e5e7eb; /* Gray-200 */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Cool Row Hover Effect */
+.category-table tbody tr:hover {
+    background: #f3f4f6; /* Light Gray */
+    transform: translateX(5px);
+}
+
+/* Table Header */
+.category-table th {
+    background-color: #3b82f6; /* Blue */
+    color: white;
+    font-weight: bold;
+}
+
+/* Lead Links */
+.category-table a {
+    color: #3b82f6; /* Blue */
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.category-table a:hover {
+    color: #2563eb; /* Dark Blue */
+    transform: scale(1.05);
+}
+
+/* Lead Count Animation */
+.lead-count {
+    font-weight: bold;
+    color: #1f2937; /* Dark Gray */
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.lead-count:hover {
+    color: #3b82f6; /* Blue */
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .category-detail-container {
+        padding: 20px;
+    }
+
+    .category-table th,
+    .category-table td {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .category-detail-actions a {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+</style>
+
+<div class="category-detail-container">
+    <!-- Header -->
+    <div class="category-detail-header">
+        <h1>{{ category.name }}</h1>
+        <p>These are the leads under this category.</p>
     </div>
-</section>
+
+    <!-- Table -->
+    <table class="category-table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Lead Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lead in category.leads.all %}
+            <tr>
+                <td>
+                    {% if request.user.is_organisor %}
+                    <a href="{% url 'leads:lead-detail' lead.pk %}">{{ lead.first_name }}</a>
+                    {% else %}
+                    {{ lead.first_name }}
+                    {% endif %}
+                </td>
+                <td>{{ lead.last_name }}</td>
+                <td class="lead-count">{{ lead.lead_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Update & Delete Buttons -->
+    {% if request.user.is_organisor %}
+    <div class="category-detail-actions">
+        <a href="{% url 'leads:category-update' category.pk %}" class="update-btn">Update</a>
+        <a href="{% url 'leads:category-delete' category.pk %}" class="delete-btn">Delete</a>
+    </div>
+    {% endif %}
+</div>
+
 {% endblock content %}

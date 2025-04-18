@@ -1,32 +1,206 @@
 {% extends "base.html" %}
-{% load tailwind_filters %}
 
 {% block content %}
 
-<section class="text-gray-700 body-font overflow-hidden">
-    <div class="container px-5 py-24 mx-auto">
-      <div class="lg:w-4/5 mx-auto flex flex-wrap">
-        <div class="w-full lg:pr-10 lg:py-6 mb-6 lg:mb-0">
-            <h2 class="text-sm title-font text-gray-500 tracking-widest">LEAD</h2>
-            <h1 class="text-gray-900 text-3xl title-font font-medium mb-4">{{ lead.first_name }} {{ lead.last_name }}</h1>
-            <div class="flex mb-4">
-                <a href="{% url 'leads:lead-detail' lead.pk %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">
-                    Overview
-                </a>
-                <a href="{% url 'leads:lead-category-update' lead.pk %}" class="flex-grow text-indigo-500 border-b-2 border-indigo-500 py-2 text-lg px-1">
-                    Category
-                </a>
-                <a href="{% url 'leads:lead-update' lead.pk %}" class="flex-grow border-b-2 border-gray-300 py-2 text-lg px-1">
-                    Update Details
-                </a>
+<section class="lead-section">
+    <div class="lead-container">
+        <div class="lead-card">
+            <!-- Header Section -->
+            <h2 class="lead-heading">Lead</h2>
+            <div style="display: flex; align-items: center;">
+                {% if lead.profile_picture %}
+                    <img src="{{ lead.profile_picture.url }}" alt="Profile Picture" class="profile-picture floating">
+                {% endif %}
+                <h1 style="margin-left: 15px;">{{ lead.first_name }} {{ lead.last_name }}</h1>
             </div>
-            <form form method="post">
+
+            <!-- Navigation Tabs -->
+            <div class="lead-tabs">
+                <a href="{% url 'leads:lead-detail' lead.pk %}" class="tab">Overview</a>
+                <a href="{% url 'leads:lead-category-update' lead.pk %}" class="tab active-tab">Status</a>
+                <a href="{% url 'leads:lead-update' lead.pk %}" class="tab">Update Details</a>
+            </div>
+
+            <!-- Form Section -->
+            <form method="post" class="lead-form">
                 {% csrf_token %}
-                {{ form|crispy }}
-                <button type="submit" class="w-full text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md">Submit</button>
+                <div class="form-group">
+                    {{ form.as_p }}
+                </div>
+                <div class="submit-container">
+                    <button type="submit" class="submit-btn">Submit</button>
+                </div>
             </form>
         </div>
-      </div>
     </div>
-  </section>
+</section>
+
+<style>
+/* General Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa);
+}
+
+.lead-section {
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    margin-top: 80px;
+    background: linear-gradient(135deg, #f5f7fa);
+}
+
+.lead-container {
+    width: 50%;
+    max-width: 600px;
+}
+
+.lead-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lead-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.lead-heading {
+    text-transform: uppercase;
+    font-size: 12px;
+    color: gray;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.lead-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.profile-picture {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #007bff;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.profile-picture.floating {
+    animation: float 3s ease-in-out infinite;
+}
+
+
+
+.lead-tabs {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.tab:hover {
+    background: #f1f1f1;
+    transform: translateY(-2px);
+}
+
+.active-tab {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: bold;
+}
+
+.lead-form {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+.submit-container {
+    display: flex;
+    justify-content: center;
+}
+
+.submit-btn {
+    width: 100%;
+    max-width: 200px;
+    background: #007bff;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.submit-btn:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .lead-container {
+        width: 90%;
+    }
+
+    .lead-tabs {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tab {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .profile-picture {
+        width: 50px;
+        height: 50px;
+    }
+}
+</style>
+
 {% endblock content %}

@@ -19,17 +19,17 @@ class AgentListView(OrganisorAndLoginRequiredMixin, generic.ListView):
         return Agent.objects.filter(organisation=organisation)
     
 class AgentCreateView(OrganisorAndLoginRequiredMixin, generic.CreateView):
-     template_name = "agents/agent_create.html"
-     form_class = AgentModelForm
+    template_name = "agents/agent_create.html"
+    form_class = AgentModelForm
 
-     def get_success_url(self):
+    def get_success_url(self):
         return reverse("agents:agent-list")
-     
-     def form_valid(self, form):
+
+    def form_valid(self, form):
         user = form.save(commit=False)
         user.is_agent = True
         user.is_organisor = False
-        user.set_password(f"{random.randint(0, 1000000)}")
+        user.set_password("admin@1234")  # Set static password
         user.save()
         Agent.objects.create(
             user=user,
@@ -37,12 +37,12 @@ class AgentCreateView(OrganisorAndLoginRequiredMixin, generic.CreateView):
         )
         send_mail(
             subject="You are invited to be an agent",
-            message="You were added as an agent on CRM. Please come login to start working.",
+            message="You were added as an agent on CRM. Please login with password 'admin@1234' and update it immediately.",
             from_email="admin@test.com",
             recipient_list=[user.email]
         )
 
-        return super(AgentCreateView, self).form_valid(form)
+        return super().form_valid(form)
      
 class AgentDetailView(OrganisorAndLoginRequiredMixin, generic.DetailView):
     template_name = "agents/agent_detail.html"

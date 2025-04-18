@@ -27,6 +27,8 @@ urlpatterns = [
     path('password-reset-complete/', PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('chat/', include('chat.urls', namespace='chat')),
+    
 
 ]
 
